@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Permissao {
+  DEV
+  SUP
+  ADM
+  USR
+}
+
+model Usuario {
+  id        String    @id @default(uuid())
+  nome      String
+  login     String    @unique
+  email     String    @unique
+  permissao Permissao @default(USR)
+  status    Int       @default(1)
+
+  ultimoLogin  DateTime @default(now())
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @default(now()) @updatedAt
+
+  @@map("usuarios")
+}
+
+model Titulos {
+  id              String    @id @default(uuid())
+  nome            String
+  lado            Int
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @default(now()) @updatedAt
+
+  categoria       Categorias[]
+
+  @@map("titulos")
+}
+
+model Categorias {
+  id              String      @id @default(uuid())
+  nome            String
+  descricao       String
+
+  id_titulo       String
+  titulo          Titulos     @relation(fields: [id_titulo], references: [id])
+
+  criadoEm        DateTime  @default(now())
+  atualizadoEm    DateTime  @default(now()) @updatedAt
+
+  subcategoria    SubCategoria[]
+
+  @@map("categoria")
+}
+
+model SubCategoria {
+  id                String      @id @default(uuid())
+  nome              String
+  descricao         String
+
+  id_subcategoria   String
+  categorias        Categorias     @relation(fields: [id_subcategoria], references: [id])
+
+  criadoEm          DateTime  @default(now())
+  atualizadoEm      DateTime  @default(now()) @updatedAt
+
+  @@map("subcategoria")
+}
